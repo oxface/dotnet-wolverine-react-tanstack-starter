@@ -1,0 +1,6 @@
+{
+  "appHost": {
+    "path": "orchestration/StarterKit.AppHost/StarterKit.AppHost.csproj",
+    "language": "csharp"
+  }
+}

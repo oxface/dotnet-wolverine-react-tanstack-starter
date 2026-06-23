@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/orchestration/">
+    <Project Path="orchestration/StarterKit.AppHost/StarterKit.AppHost.csproj" />
+  </Folder>
+  <Folder Name="/server/src/">
+    <Project Path="server/src/StarterKit.Api/StarterKit.Api.csproj" />
+    <Project Path="server/src/StarterKit.ServiceDefaults/StarterKit.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/server/tests/">
+    <Project Path="server/tests/StarterKit.Api.Tests/StarterKit.Api.Tests.csproj" />
+  </Folder>
+</Solution>

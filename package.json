@@ -1,0 +1,34 @@
+{
+  "name": "starter-kit",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Starter repo for .NET projects using Wolverine, React, TanStack Query, and TanStack Router.",
+  "packageManager": "pnpm@10.33.4",
+  "type": "module",
+  "scripts": {
+    "prepare": "husky",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "commitlint": "commitlint --edit",
+    "init-repo": "node scripts/init-repo.mjs",
+    "starter:add-auth-keycloak": "node scripts/capabilities/add-keycloak-auth.mjs",
+    "starter:add-rabbitmq-wolverine": "node scripts/capabilities/add-rabbitmq-wolverine.mjs",
+    "verify-init": "node scripts/verify-init.mjs",
+    "backend:restore": "dotnet restore StarterKit.slnx",
+    "backend:build": "dotnet build StarterKit.slnx --no-restore",
+    "backend:test": "dotnet test StarterKit.slnx --no-build --logger \"console;verbosity=minimal\"",
+    "frontend:typecheck": "pnpm --filter @starter-kit/web typecheck",
+    "frontend:test": "pnpm --filter @starter-kit/web test",
+    "frontend:build": "pnpm --filter @starter-kit/web build",
+    "frontend:lint": "pnpm --filter @starter-kit/web lint",
+    "frontend:verify": "pnpm frontend:typecheck && pnpm frontend:test && pnpm frontend:build && pnpm frontend:lint",
+    "verify": "pnpm format:check && pnpm backend:restore && pnpm backend:build && pnpm backend:test && pnpm frontend:verify",
+    "verify:initialized": "pnpm verify && pnpm verify-init"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "21.1.0",
+    "@commitlint/config-conventional": "21.1.0",
+    "husky": "9.1.7",
+    "prettier": "3.8.4"
+  }
+}

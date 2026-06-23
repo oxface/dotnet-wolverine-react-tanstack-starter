@@ -427,3 +427,31 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+# Node / pnpm / frontend local artifacts
+node_modules/
+**/node_modules/
+**/.vite/
+.pnpm-store/
+**/dist/
+**/coverage/
+**/test-results/
+**/playwright-report/
+*.tsbuildinfo
+# Local tool installs and generated editor/container state
+.dotnet/
+.devcontainer/devcontainer-lock.json
+# Agent/tool local state
+.playwright/
+.vscode/mcp.json
+# Local agent/tool installs and generated runtime caches
+.claude/
+.github/skills/
+dotnet/runfile-discovery/
+# Tool-installed agent skills; keep starter-owned skills visible
+.agents/skills/*
+!.agents/skills/init-repo/
+!.agents/skills/init-repo/**
+!.agents/skills/init-keycloak-auth/
+!.agents/skills/init-keycloak-auth/**
+!.agents/skills/init-rabbitmq-wolverine/
+!.agents/skills/init-rabbitmq-wolverine/**

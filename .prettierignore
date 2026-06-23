@@ -1,0 +1,22 @@
+.git
+.husky/_
+**/bin
+**/obj
+**/dist
+**/node_modules
+**/coverage
+**/test-results
+**/playwright-report
+pnpm-lock.yaml
+# Local agent/tool installs and generated runtime caches
+.claude/
+.github/skills/
+dotnet/runfile-discovery/
+# Tool-installed agent skills; keep starter-owned skills visible
+.agents/skills/*
+!.agents/skills/init-repo/
+!.agents/skills/init-repo/**
+!.agents/skills/init-keycloak-auth/
+!.agents/skills/init-keycloak-auth/**
+!.agents/skills/init-rabbitmq-wolverine/
+!.agents/skills/init-rabbitmq-wolverine/**
