@@ -28,6 +28,12 @@ dotnet run --project orchestration/StarterKit.AppHost/StarterKit.AppHost.csproj
 - [orchestration/README.md](orchestration/README.md) describes Aspire startup.
 - [scripts/README.md](scripts/README.md) describes initialization helpers.
 
+## Release Setup
+
+Release Please can run with the built-in `GITHUB_TOKEN`, but each repository must enable `Settings > Actions > General > Workflow permissions > Allow GitHub Actions to create and approve pull requests`.
+
+For release PRs that should trigger the normal CI workflow, create a fine-grained PAT with repository `contents`, `pull requests`, and `issues` write access, then save it as the `RELEASE_PLEASE_TOKEN` repository secret. The workflow falls back to `GITHUB_TOKEN` when that secret is absent.
+
 ## Optional Capabilities
 
 Keep the base starter lean, then opt into heavier architecture with deterministic commands:
