@@ -4,12 +4,16 @@ import path from "node:path";
 import process from "node:process";
 
 const root = path.resolve(import.meta.dirname, "..");
-const placeholders = [
+const contentPlaceholders = [
   "Starter Kit",
   "StarterKit",
   "starter-kit",
   "starter_kit",
   "@starter-kit",
+];
+const pathPlaceholders = [
+  ...contentPlaceholders,
+  "dotnet-wolverine-react-tanstack-starter",
 ];
 const ignoredDirs = new Set([
   ".git",
@@ -35,6 +39,7 @@ const extensions = new Set([
   ".md",
   ".props",
   ".slnx",
+  ".code-workspace",
   ".ts",
   ".tsx",
   ".yaml",
@@ -69,10 +74,17 @@ async function walk(dir) {
 
 const matches = [];
 for (const file of await walk(root)) {
+  const relative = path.relative(root, file).split(path.sep).join("/");
+  for (const placeholder of pathPlaceholders) {
+    if (relative.includes(placeholder)) {
+      matches.push(`${relative} path contains ${placeholder}`);
+    }
+  }
+
   const text = await readFile(file, "utf8");
-  for (const placeholder of placeholders) {
+  for (const placeholder of contentPlaceholders) {
     if (text.includes(placeholder)) {
-      matches.push(`${path.relative(root, file)} contains ${placeholder}`);
+      matches.push(`${relative} contains ${placeholder}`);
     }
   }
 }

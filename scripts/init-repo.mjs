@@ -66,6 +66,7 @@ const replacements = new Map([
   ["starter-kit", kebabName],
   ["starter_kit", snakeName],
   ["@starter-kit", `@${kebabName}`],
+  ["dotnet-wolverine-react-tanstack-starter", kebabName],
 ]);
 
 const textFiles = [
@@ -73,6 +74,7 @@ const textFiles = [
   "AGENTS.md",
   "package.json",
   "pnpm-lock.yaml",
+  "dotnet-wolverine-react-tanstack-starter.code-workspace",
   ".devcontainer/devcontainer.json",
   "aspire.config.json",
   "StarterKit.slnx",
@@ -124,6 +126,10 @@ for (const relative of textFiles) {
 }
 
 const renamePairs = [
+  [
+    "dotnet-wolverine-react-tanstack-starter.code-workspace",
+    `${kebabName}.code-workspace`,
+  ],
   ["StarterKit.slnx", `${pascalName}.slnx`],
   [
     "server/src/StarterKit.Api/StarterKit.Api.csproj",
