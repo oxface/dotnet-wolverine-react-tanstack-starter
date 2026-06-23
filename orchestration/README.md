@@ -1,6 +1,6 @@
 # Orchestration
 
-Aspire startup lives under `StarterKit.AppApi` and runs the backend Api plus
+Aspire startup lives under `StarterKit.AppHost` and runs the backend Api plus
 the frontend Vite app.
 
 Read:

@@ -26,6 +26,34 @@ function insertBefore(text, needle, insertion) {
   return `${text.slice(0, index)}${insertion}${text.slice(index)}`;
 }
 
+function findPackageVersionLine(text, packageName) {
+  const packageVersionLine = new RegExp(
+    `^ {4}<PackageVersion Include="${packageName}" Version="[^"]+" />$`,
+    "m",
+  );
+  const match = text.match(packageVersionLine);
+  if (!match) {
+    throw new Error(`Could not find PackageVersion: ${packageName}`);
+  }
+
+  return match[0];
+}
+
+function insertBeforePackageVersion(text, packageName, insertion) {
+  return insertBefore(
+    text,
+    findPackageVersionLine(text, packageName),
+    insertion,
+  );
+}
+
+function insertAfterPackageVersion(text, packageName, insertion) {
+  return insertAfter(
+    text,
+    findPackageVersionLine(text, packageName),
+    insertion,
+  );
+}
 function insertAfter(text, needle, insertion) {
   if (text.includes(insertion.trim())) {
     return text;
@@ -58,6 +86,13 @@ async function update(relative, transform) {
   if (next !== original) {
     await write(relative, next);
   }
+}
+
+async function updateJson(relative, transform) {
+  const original = await read(relative);
+  const data = JSON.parse(original);
+  transform(data);
+  await write(relative, `${JSON.stringify(data, null, 2)}\n`);
 }
 
 const authFiles = new Map([
@@ -259,16 +294,96 @@ public sealed class RedisTicketStore(IDistributedCache cache) : ITicketStore
   ],
 ]);
 
+await updateJson(
+  "orchestration/StarterKit.AppHost/appsettings.json",
+  (data) => {
+    data.Parameters ??= {};
+    data.Parameters["keycloak-username"] ??= "admin";
+    data.Parameters["keycloak-password"] ??= "admin";
+  },
+);
+
 await update("Directory.Packages.props", (text) => {
-  text = insertBefore(
+  text = insertAfterPackageVersion(
     text,
-    '    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.9" />',
+    "Aspire.Hosting.JavaScript",
+    '\n    <PackageVersion Include="Aspire.Hosting.Keycloak" Version="13.4.6-preview.1.26319.6" />',
+  );
+  text = insertAfterPackageVersion(
+    text,
+    "Aspire.Hosting.PostgreSQL",
+    '\n    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.4.6" />',
+  );
+  text = insertBeforePackageVersion(
+    text,
+    "Microsoft.AspNetCore.Mvc.Testing",
     '    <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.9" />\n',
   );
-  text = insertBefore(
+  text = insertBeforePackageVersion(
     text,
-    '    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.6.0" />',
+    "Microsoft.Extensions.Http.Resilience",
     '    <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.9" />\n',
+  );
+  return text;
+});
+
+await update(
+  "orchestration/StarterKit.AppHost/StarterKit.AppHost.csproj",
+  (text) => {
+    text = insertAfter(
+      text,
+      '    <PackageReference Include="Aspire.Hosting.JavaScript" />',
+      '\n    <PackageReference Include="Aspire.Hosting.Keycloak" />',
+    );
+    text = insertAfter(
+      text,
+      '    <PackageReference Include="Aspire.Hosting.PostgreSQL" />',
+      '\n    <PackageReference Include="Aspire.Hosting.Redis" />',
+    );
+    return text;
+  },
+);
+
+await update("orchestration/StarterKit.AppHost/Program.cs", (text) => {
+  text = insertAfter(
+    text,
+    `var cache = builder
+    .AddRedis("cache", port: 6379)
+    .WithDataVolume("starter-kit-cache");
+`,
+    `var sessionTickets = builder
+    .AddRedis("session-tickets", port: 6380)
+    .WithDataVolume("starter-kit-session-tickets");
+`,
+  );
+  text = insertAfter(
+    text,
+    `var sessionTickets = builder
+    .AddRedis("session-tickets", port: 6380)
+    .WithDataVolume("starter-kit-session-tickets");
+`,
+    `
+var keycloakUsername = builder.AddParameter("keycloak-username");
+var keycloakPassword = builder.AddParameter("keycloak-password", secret: true);
+var keycloak = builder
+    .AddKeycloak("keycloak", 8080, keycloakUsername, keycloakPassword)
+    .WithDataVolume("starter-kit-keycloak");
+`,
+  );
+  text = insertAfter(
+    text,
+    `    .WithReference(cache)
+`,
+    `    .WithReference(sessionTickets)
+`,
+  );
+  text = insertAfter(
+    text,
+    `    .WaitFor(cache)
+`,
+    `    .WaitFor(sessionTickets)
+    .WaitFor(keycloak)
+`,
   );
   return text;
 });
@@ -315,4 +430,6 @@ for (const [relative, contents] of authFiles) {
   await write(relative, contents);
 }
 
-console.log("Added Keycloak OIDC auth with Redis-backed cookie tickets.");
+console.log(
+  "Added Keycloak OIDC auth, Aspire Keycloak resource, and Redis-backed cookie tickets.",
+);

@@ -26,6 +26,26 @@ function insertBefore(text, needle, insertion) {
   return `${text.slice(0, index)}${insertion}${text.slice(index)}`;
 }
 
+function findPackageVersionLine(text, packageName) {
+  const packageVersionLine = new RegExp(
+    `^ {4}<PackageVersion Include="${packageName}" Version="[^"]+" />$`,
+    "m",
+  );
+  const match = text.match(packageVersionLine);
+  if (!match) {
+    throw new Error(`Could not find PackageVersion: ${packageName}`);
+  }
+
+  return match[0];
+}
+
+function insertAfterPackageVersion(text, packageName, insertion) {
+  return insertAfter(
+    text,
+    findPackageVersionLine(text, packageName),
+    insertion,
+  );
+}
 function insertAfter(text, needle, insertion) {
   if (text.includes(insertion.trim())) {
     return text;
@@ -121,14 +141,14 @@ await updateJson(
 );
 
 await update("Directory.Packages.props", (text) => {
-  text = insertAfter(
+  text = insertAfterPackageVersion(
     text,
-    '    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.4.6" />',
+    "Aspire.Hosting.PostgreSQL",
     '\n    <PackageVersion Include="Aspire.Hosting.RabbitMQ" Version="13.4.6" />',
   );
-  text = insertAfter(
+  text = insertAfterPackageVersion(
     text,
-    '    <PackageVersion Include="WolverineFx" Version="6.14.0" />',
+    "WolverineFx",
     '\n    <PackageVersion Include="WolverineFx.RabbitMQ" Version="6.14.0" />',
   );
   return text;
