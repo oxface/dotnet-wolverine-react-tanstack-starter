@@ -105,6 +105,7 @@ const textFiles = [
   "orchestration/StarterKit.AppHost/StarterKit.AppHost.csproj",
   "orchestration/StarterKit.AppHost/appsettings.json",
   "orchestration/StarterKit.AppHost/Program.cs",
+  "orchestration/StarterKit.AppHost/Properties/launchSettings.json",
   "scripts/README.md",
   "scripts/capabilities/add-keycloak-auth.mjs",
   "scripts/capabilities/add-rabbitmq-wolverine.mjs",

@@ -17,5 +17,5 @@ pnpm verify:initialized
 Use Aspire for local smoke validation:
 
 ```sh
-dotnet run --project orchestration/StarterKit.AppApi/StarterKit.AppApi.csproj
+dotnet run --project orchestration/StarterKit.AppHost/StarterKit.AppHost.csproj
 ```
