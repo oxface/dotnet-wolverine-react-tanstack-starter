@@ -5,13 +5,23 @@ import process from "node:process";
 
 const root = path.resolve(import.meta.dirname, "..");
 
+function readOption(argv, name) {
+  const index = argv.findIndex((arg) => arg === name);
+  return index === -1 ? undefined : argv[index + 1];
+}
+
 function parseArgs(argv) {
-  const nameIndex = argv.findIndex((arg) => arg === "--name");
-  if (nameIndex === -1 || !argv[nameIndex + 1]) {
-    throw new Error('Usage: pnpm init-repo -- --name "Acme Desk"');
+  const displayName = readOption(argv, "--name");
+  if (!displayName) {
+    throw new Error(
+      'Usage: pnpm init-repo -- --name "Acme Desk" [--slug acme-desk]',
+    );
   }
 
-  return argv[nameIndex + 1];
+  return {
+    displayName,
+    slugName: readOption(argv, "--slug"),
+  };
 }
 
 function toWords(name) {
@@ -35,15 +45,20 @@ function toSnake(words) {
   return words.map((word) => word.toLowerCase()).join("_");
 }
 
-const displayName = parseArgs(process.argv.slice(2));
-const words = toWords(displayName);
-if (words.length === 0) {
+const { displayName, slugName } = parseArgs(process.argv.slice(2));
+const nameWords = toWords(displayName);
+if (nameWords.length === 0) {
   throw new Error("Project name must contain letters or numbers.");
 }
 
-const pascalName = toPascal(words);
-const kebabName = toKebab(words);
-const snakeName = toSnake(words);
+const slugWords = slugName === undefined ? nameWords : toWords(slugName);
+if (slugWords.length === 0) {
+  throw new Error("Project slug must contain letters or numbers.");
+}
+
+const pascalName = toPascal(nameWords);
+const kebabName = toKebab(slugWords);
+const snakeName = toSnake(slugWords);
 
 const replacements = new Map([
   ["Starter Kit", displayName.trim()],
