@@ -1,0 +1,4 @@
+interface:
+  display_name: "ADR Record"
+  short_description: "Create concise technical ADRs."
+  default_prompt: "Use $adr-record to create an ADR for this technical decision."

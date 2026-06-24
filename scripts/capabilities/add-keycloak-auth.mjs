@@ -26,34 +26,6 @@ function insertBefore(text, needle, insertion) {
   return `${text.slice(0, index)}${insertion}${text.slice(index)}`;
 }
 
-function findPackageVersionLine(text, packageName) {
-  const packageVersionLine = new RegExp(
-    `^ {4}<PackageVersion Include="${packageName}" Version="[^"]+" />$`,
-    "m",
-  );
-  const match = text.match(packageVersionLine);
-  if (!match) {
-    throw new Error(`Could not find PackageVersion: ${packageName}`);
-  }
-
-  return match[0];
-}
-
-function insertBeforePackageVersion(text, packageName, insertion) {
-  return insertBefore(
-    text,
-    findPackageVersionLine(text, packageName),
-    insertion,
-  );
-}
-
-function insertAfterPackageVersion(text, packageName, insertion) {
-  return insertAfter(
-    text,
-    findPackageVersionLine(text, packageName),
-    insertion,
-  );
-}
 function insertAfter(text, needle, insertion) {
   if (text.includes(insertion.trim())) {
     return text;
@@ -302,30 +274,6 @@ await updateJson(
     data.Parameters["keycloak-password"] ??= "admin";
   },
 );
-
-await update("Directory.Packages.props", (text) => {
-  text = insertAfterPackageVersion(
-    text,
-    "Aspire.Hosting.JavaScript",
-    '\n    <PackageVersion Include="Aspire.Hosting.Keycloak" Version="13.4.6-preview.1.26319.6" />',
-  );
-  text = insertAfterPackageVersion(
-    text,
-    "Aspire.Hosting.PostgreSQL",
-    '\n    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.4.6" />',
-  );
-  text = insertBeforePackageVersion(
-    text,
-    "Microsoft.AspNetCore.Mvc.Testing",
-    '    <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.9" />\n',
-  );
-  text = insertBeforePackageVersion(
-    text,
-    "Microsoft.Extensions.Http.Resilience",
-    '    <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.9" />\n',
-  );
-  return text;
-});
 
 await update(
   "orchestration/StarterKit.AppHost/StarterKit.AppHost.csproj",
