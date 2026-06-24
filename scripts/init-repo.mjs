@@ -5,13 +5,23 @@ import process from "node:process";
 
 const root = path.resolve(import.meta.dirname, "..");
 
+function readOption(argv, name) {
+  const index = argv.findIndex((arg) => arg === name);
+  return index === -1 ? undefined : argv[index + 1];
+}
+
 function parseArgs(argv) {
-  const nameIndex = argv.findIndex((arg) => arg === "--name");
-  if (nameIndex === -1 || !argv[nameIndex + 1]) {
-    throw new Error('Usage: pnpm init-repo -- --name "Acme Desk"');
+  const displayName = readOption(argv, "--name");
+  if (!displayName) {
+    throw new Error(
+      'Usage: pnpm init-repo -- --name "Acme Desk" [--slug acme-desk]',
+    );
   }
 
-  return argv[nameIndex + 1];
+  return {
+    displayName,
+    slugName: readOption(argv, "--slug"),
+  };
 }
 
 function toWords(name) {
@@ -35,15 +45,20 @@ function toSnake(words) {
   return words.map((word) => word.toLowerCase()).join("_");
 }
 
-const displayName = parseArgs(process.argv.slice(2));
-const words = toWords(displayName);
-if (words.length === 0) {
+const { displayName, slugName } = parseArgs(process.argv.slice(2));
+const nameWords = toWords(displayName);
+if (nameWords.length === 0) {
   throw new Error("Project name must contain letters or numbers.");
 }
 
-const pascalName = toPascal(words);
-const kebabName = toKebab(words);
-const snakeName = toSnake(words);
+const slugWords = slugName === undefined ? nameWords : toWords(slugName);
+if (slugWords.length === 0) {
+  throw new Error("Project slug must contain letters or numbers.");
+}
+
+const pascalName = toPascal(nameWords);
+const kebabName = toKebab(slugWords);
+const snakeName = toSnake(slugWords);
 
 const replacements = new Map([
   ["Starter Kit", displayName.trim()],
@@ -51,6 +66,7 @@ const replacements = new Map([
   ["starter-kit", kebabName],
   ["starter_kit", snakeName],
   ["@starter-kit", `@${kebabName}`],
+  ["dotnet-wolverine-react-tanstack-starter", kebabName],
 ]);
 
 const textFiles = [
@@ -58,6 +74,7 @@ const textFiles = [
   "AGENTS.md",
   "package.json",
   "pnpm-lock.yaml",
+  "dotnet-wolverine-react-tanstack-starter.code-workspace",
   ".devcontainer/devcontainer.json",
   "aspire.config.json",
   "StarterKit.slnx",
@@ -88,6 +105,7 @@ const textFiles = [
   "orchestration/StarterKit.AppHost/StarterKit.AppHost.csproj",
   "orchestration/StarterKit.AppHost/appsettings.json",
   "orchestration/StarterKit.AppHost/Program.cs",
+  "orchestration/StarterKit.AppHost/Properties/launchSettings.json",
   "scripts/README.md",
   "scripts/capabilities/add-keycloak-auth.mjs",
   "scripts/capabilities/add-rabbitmq-wolverine.mjs",
@@ -110,6 +128,10 @@ for (const relative of textFiles) {
 }
 
 const renamePairs = [
+  [
+    "dotnet-wolverine-react-tanstack-starter.code-workspace",
+    `${kebabName}.code-workspace`,
+  ],
   ["StarterKit.slnx", `${pascalName}.slnx`],
   [
     "server/src/StarterKit.Api/StarterKit.Api.csproj",

@@ -60,6 +60,13 @@ async function update(relative, transform) {
   }
 }
 
+async function updateJson(relative, transform) {
+  const original = await read(relative);
+  const data = JSON.parse(original);
+  transform(data);
+  await write(relative, `${JSON.stringify(data, null, 2)}\n`);
+}
+
 const authFiles = new Map([
   [
     "server/src/StarterKit.Api/Auth/AuthEndpoints.cs",
@@ -259,16 +266,72 @@ public sealed class RedisTicketStore(IDistributedCache cache) : ITicketStore
   ],
 ]);
 
-await update("Directory.Packages.props", (text) => {
-  text = insertBefore(
+await updateJson(
+  "orchestration/StarterKit.AppHost/appsettings.json",
+  (data) => {
+    data.Parameters ??= {};
+    data.Parameters["keycloak-username"] ??= "admin";
+    data.Parameters["keycloak-password"] ??= "admin";
+  },
+);
+
+await update(
+  "orchestration/StarterKit.AppHost/StarterKit.AppHost.csproj",
+  (text) => {
+    text = insertAfter(
+      text,
+      '    <PackageReference Include="Aspire.Hosting.JavaScript" />',
+      '\n    <PackageReference Include="Aspire.Hosting.Keycloak" />',
+    );
+    text = insertAfter(
+      text,
+      '    <PackageReference Include="Aspire.Hosting.PostgreSQL" />',
+      '\n    <PackageReference Include="Aspire.Hosting.Redis" />',
+    );
+    return text;
+  },
+);
+
+await update("orchestration/StarterKit.AppHost/Program.cs", (text) => {
+  text = insertAfter(
     text,
-    '    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.9" />',
-    '    <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.9" />\n',
+    `var cache = builder
+    .AddRedis("cache", port: 6379)
+    .WithDataVolume("starter-kit-cache");
+`,
+    `var sessionTickets = builder
+    .AddRedis("session-tickets", port: 6380)
+    .WithDataVolume("starter-kit-session-tickets");
+`,
   );
-  text = insertBefore(
+  text = insertAfter(
     text,
-    '    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.6.0" />',
-    '    <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.9" />\n',
+    `var sessionTickets = builder
+    .AddRedis("session-tickets", port: 6380)
+    .WithDataVolume("starter-kit-session-tickets");
+`,
+    `
+var keycloakUsername = builder.AddParameter("keycloak-username");
+var keycloakPassword = builder.AddParameter("keycloak-password", secret: true);
+var keycloak = builder
+    .AddKeycloak("keycloak", 8080, keycloakUsername, keycloakPassword)
+    .WithDataVolume("starter-kit-keycloak");
+`,
+  );
+  text = insertAfter(
+    text,
+    `    .WithReference(cache)
+`,
+    `    .WithReference(sessionTickets)
+`,
+  );
+  text = insertAfter(
+    text,
+    `    .WaitFor(cache)
+`,
+    `    .WaitFor(sessionTickets)
+    .WaitFor(keycloak)
+`,
   );
   return text;
 });
@@ -315,4 +378,6 @@ for (const [relative, contents] of authFiles) {
   await write(relative, contents);
 }
 
-console.log("Added Keycloak OIDC auth with Redis-backed cookie tickets.");
+console.log(
+  "Added Keycloak OIDC auth, Aspire Keycloak resource, and Redis-backed cookie tickets.",
+);

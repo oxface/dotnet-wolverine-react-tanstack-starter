@@ -1,0 +1,4 @@
+interface:
+  display_name: "ADR Review"
+  short_description: "Review technical ADR quality."
+  default_prompt: "Use $adr-review to review this ADR for scope, tradeoffs, and evidence."

@@ -120,20 +120,6 @@ await updateJson(
   },
 );
 
-await update("Directory.Packages.props", (text) => {
-  text = insertAfter(
-    text,
-    '    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.4.6" />',
-    '\n    <PackageVersion Include="Aspire.Hosting.RabbitMQ" Version="13.4.6" />',
-  );
-  text = insertAfter(
-    text,
-    '    <PackageVersion Include="WolverineFx" Version="6.14.0" />',
-    '\n    <PackageVersion Include="WolverineFx.RabbitMQ" Version="6.14.0" />',
-  );
-  return text;
-});
-
 await update(
   "orchestration/StarterKit.AppHost/StarterKit.AppHost.csproj",
   (text) =>
