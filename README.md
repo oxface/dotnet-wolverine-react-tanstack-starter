@@ -34,6 +34,8 @@ Release Please can run with the built-in `GITHUB_TOKEN`, but each repository mus
 
 For release PRs that should trigger the normal CI workflow, create a fine-grained PAT with repository `contents`, `pull requests`, and `issues` write access, then save it as the `RELEASE_PLEASE_TOKEN` repository secret. The workflow falls back to `GITHUB_TOKEN` when that secret is absent.
 
+Release Please tracks one root release and keeps the repository version in sync across `Directory.Build.props`, the root `package.json`, and `web/apps/starter-kit-web/package.json`.
+
 ## Optional Capabilities
 
 Keep the base starter lean, then opt into heavier architecture with deterministic commands:

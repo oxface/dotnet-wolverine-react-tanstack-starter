@@ -1,0 +1,26 @@
+{
+  "packages": {
+    ".": {
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "xml",
+          "path": "Directory.Build.props",
+          "xpath": "/Project/PropertyGroup/VersionPrefix"
+        },
+        {
+          "type": "json",
+          "path": "package.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "web/apps/starter-kit-web/package.json",
+          "jsonpath": "$.version"
+        }
+      ],
+      "package-name": "starter-kit",
+      "release-type": "simple"
+    }
+  }
+}

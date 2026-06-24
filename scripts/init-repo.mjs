@@ -91,6 +91,7 @@ const textFiles = [
   "scripts/README.md",
   "scripts/capabilities/add-keycloak-auth.mjs",
   "scripts/capabilities/add-rabbitmq-wolverine.mjs",
+  "release-please-config.json",
   ".agents/skills/init-repo/SKILL.md",
   ".agents/skills/init-keycloak-auth/SKILL.md",
   ".agents/skills/init-rabbitmq-wolverine/SKILL.md",
