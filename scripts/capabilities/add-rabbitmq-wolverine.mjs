@@ -26,26 +26,6 @@ function insertBefore(text, needle, insertion) {
   return `${text.slice(0, index)}${insertion}${text.slice(index)}`;
 }
 
-function findPackageVersionLine(text, packageName) {
-  const packageVersionLine = new RegExp(
-    `^ {4}<PackageVersion Include="${packageName}" Version="[^"]+" />$`,
-    "m",
-  );
-  const match = text.match(packageVersionLine);
-  if (!match) {
-    throw new Error(`Could not find PackageVersion: ${packageName}`);
-  }
-
-  return match[0];
-}
-
-function insertAfterPackageVersion(text, packageName, insertion) {
-  return insertAfter(
-    text,
-    findPackageVersionLine(text, packageName),
-    insertion,
-  );
-}
 function insertAfter(text, needle, insertion) {
   if (text.includes(insertion.trim())) {
     return text;
@@ -139,20 +119,6 @@ await updateJson(
     data.Parameters["rabbitmq-password"] ??= "rabbitmq";
   },
 );
-
-await update("Directory.Packages.props", (text) => {
-  text = insertAfterPackageVersion(
-    text,
-    "Aspire.Hosting.PostgreSQL",
-    '\n    <PackageVersion Include="Aspire.Hosting.RabbitMQ" Version="13.4.6" />',
-  );
-  text = insertAfterPackageVersion(
-    text,
-    "WolverineFx",
-    '\n    <PackageVersion Include="WolverineFx.RabbitMQ" Version="6.14.0" />',
-  );
-  return text;
-});
 
 await update(
   "orchestration/StarterKit.AppHost/StarterKit.AppHost.csproj",

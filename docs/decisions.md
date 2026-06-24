@@ -13,4 +13,7 @@
 - Keep frontend shape to one React app plus empty extension folders.
 - Use Aspire for local orchestration of backend, frontend, and local platform
   resources.
+- Use OpenSpec as the default behavior-spec tool when a consumer project
+  needs SDD, but do not install it in the starter by default.
+- Use ADRs for technical-only decisions that do not need a behavior spec.
 - Keep initialization deterministic through `scripts/init-repo.mjs`.
